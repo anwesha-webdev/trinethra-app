@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Advanced Text Analyzer</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    input {
+      width: 70%;
+      padding: 8px;
+      margin-right: 5px;
+    }
+
+    button {
+      padding: 8px 12px;
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    #result {
+      margin-top: 15px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .loading {
+      color: orange;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2>🚀 Text Analyzer</h2>
+
+    <input type="text" id="textInput" placeholder="Enter text">
+    <button onclick="sendData()">Analyze</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function sendData() {
+      const text = document.getElementById("textInput").value;
+      const resultDiv = document.getElementById("result");
+
+      resultDiv.innerHTML = "<p class='loading'>Analyzing...</p>";
+
+      try {
+        const response = await fetch("http://localhost:3000/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          resultDiv.innerHTML = "<p class='error'>" + data.error + "</p>";
+          return;
+        }
+
+        resultDiv.innerHTML = `
+          <p><b>Words:</b> ${data.wordCount}</p>
+          <p><b>Characters:</b> ${data.charCount}</p>
+          <p><b>Sentences:</b> ${data.sentenceCount}</p>
+          <p><b>Longest Word:</b> ${data.longestWord}</p>
+          <p><b>Reading Time:</b> ${data.readingTime} min</p>
+        `;
+
+      } catch (err) {
+        resultDiv.innerHTML = "<p class='error'>Server error</p>";
+      }
+    }
+  </script>
+</body>
+</html>
